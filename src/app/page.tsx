@@ -10,12 +10,13 @@ interface Transaction {
   value: number;
 }
 
-const MepagaIvan = () => { // Corrigindo para começar com letra maiúscula
+const MepagaIvan = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [name, setName] = useState<string>("");
   const [value, setValue] = useState<string>("");
 
   const { getTransactionsAll } = useGetTransactions();
+  const { postTransaction } = usePostTransactions(); // Colocando aqui fora da função addTransaction
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,8 +30,6 @@ const MepagaIvan = () => { // Corrigindo para começar com letra maiúscula
     fetchData();
   }, [getTransactionsAll]);
 
-  const { postTransaction } = usePostTransactions();
-
   const addTransaction = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
     const newTransaction = {
@@ -38,7 +37,7 @@ const MepagaIvan = () => { // Corrigindo para começar com letra maiúscula
       value: +value
     };
     try {
-      await postTransaction(newTransaction);
+      await postTransaction(newTransaction); // Agora está chamando diretamente do hook
       setName("");
       setValue("");
     } catch (error) {
@@ -76,4 +75,4 @@ const MepagaIvan = () => { // Corrigindo para começar com letra maiúscula
   );
 };
 
-export default MepagaIvan; // Garantindo a exportação correta do componente
+export default MepagaIvan;
