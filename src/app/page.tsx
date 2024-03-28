@@ -1,8 +1,6 @@
 "use client"
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import useGetTransactions from "@/components/Hooks/GetTransactions";
-import usePostTransactions from "@/components/Hooks/PostTransactions";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 interface Transaction {
   _id: string;
@@ -10,69 +8,69 @@ interface Transaction {
   value: number;
 }
 
-const MepagaIvan = () => {
+export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [name, setName] = useState<string>("");
-  const [value, setValue] = useState<string>("");
+  const [formData, setFormData] = useState<{ name: string; value: string }>({ name: '', value: '' });
 
-  const { getTransactionsAll } = useGetTransactions();
-  const { postTransaction } = usePostTransactions(); // Colocando aqui fora da função addTransaction
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getTransactionsAll();
-        setTransactions(data);
-      } catch (error) {
-        console.error("Erro ao carregar transações:", error);
-      }
-    };
-    fetchData();
-  }, [getTransactionsAll]);
-
-  const addTransaction = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    const newTransaction = {
-      name,
-      value: +value
-    };
+  const fetchTransactions = async () => {
     try {
-      await postTransaction(newTransaction); // Agora está chamando diretamente do hook
-      setName("");
-      setValue("");
+      const response = await axios.get<Transaction[]>('/api/transactions');
+      setTransactions(response.data);
     } catch (error) {
-      console.error("Erro ao adicionar transação:", error);
+      console.error('Erro ao buscar transações:', error);
     }
   };
 
-  const deleteTransaction = async (id: string) => {
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
-      await axios.delete(`http://localhost:8000/api/transactions?transactionId=${id}`);
-      setTransactions(transactions.filter(transaction => transaction._id !== id));
+      await axios.post('/api/transactions', formData);
+      fetchTransactions();
+      setFormData({ name: '', value: '' });
     } catch (error) {
-      console.error("Erro ao excluir transação:", error);
+      console.error('Erro ao enviar transação:', error);
+    }
+  };
+
+  const handleDelete = async (transactionId: string) => {
+    try {
+      await axios.delete(`/api/transactions?transactionId=${transactionId}`);
+      fetchTransactions();
+    } catch (error) {
+      console.error('Erro ao excluir transação:', error);
     }
   };
 
   return (
     <div>
       <h1>Transações</h1>
-      <form>
-        <input type="text" name="name" placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} />
-        <input type="text" name="value" placeholder="Valor" value={value} onChange={(e) => setValue(e.target.value)} />
-        <button onClick={addTransaction}>Add</button>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Nome:
+          <input type="text" name="name" value={formData.name} onChange={handleInputChange} />
+        </label>
+        <label>
+          Valor:
+          <input type="number" name="value" value={formData.value} onChange={handleInputChange} />
+        </label>
+        <button type="submit">Enviar Transação</button>
       </form>
       <ul>
         {transactions.map((transaction) => (
-          <div key={transaction._id}>
-            <h1>{transaction.name}</h1>
-            <h2>{transaction.value}</h2>
-            <button onClick={() => deleteTransaction(transaction._id)}>Excluir</button>
-          </div>
+          <li key={transaction._id}>
+            {transaction.name} - R$ {transaction.value}{' '}
+            <button onClick={() => handleDelete(transaction._id)}>Excluir</button>
+          </li>
         ))}
       </ul>
     </div>
   );
-};
-
-export default MepagaIvan;
+}
