@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import GetTransactions from "@/components/Hooks/GetTransactions"; // Corrigindo o caminho do hook useGetTransactions
