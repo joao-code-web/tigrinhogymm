@@ -1,8 +1,7 @@
-"use client"
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import GetTransactions from "@/components/Hooks/GetTransactions";  // Corrija o caminho para o hook useGetTransactions
-import PostTransactions from "@/components/Hooks/PostTransactions"; // Corrija o caminho para o hook usePostTransactions
+import useGetTransactions from "@/components/Hooks/GetTransactions"; // Corrigindo o caminho do hook useGetTransactions
+import usePostTransactions from "@/components/Hooks/PostTransactions"; // Corrigindo o caminho do hook usePostTransactions
 
 interface Transaction {
   _id: string;
@@ -15,19 +14,21 @@ export default function MepagaIvan() {
   const [name, setName] = useState<string>("");
   const [value, setValue] = useState<string>("");
 
-  const { getTransactionsAll } = GetTransactions(); // Movido para fora do useEffect
+  const { getTransactionsAll } = useGetTransactions(); // Usando o hook useGetTransactions
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getTransactionsAll(); // Agora chamando a função diretamente
+        const data = await getTransactionsAll();
         setTransactions(data);
       } catch (error) {
         console.error("Erro ao carregar transações:", error);
       }
     };
     fetchData();
-  }, [getTransactionsAll]); // Adicionando getTransactionsAll como dependência
+  }, [getTransactionsAll]);
+
+  const { postTransaction } = usePostTransactions(); // Usando o hook usePostTransactions
 
   const addTransaction = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
@@ -36,7 +37,7 @@ export default function MepagaIvan() {
       value: +value
     };
     try {
-      await PostTransactions().postTransaction(newTransaction);
+      await postTransaction(newTransaction); // Chamando a função postTransaction diretamente
       setName("");
       setValue("");
     } catch (error) {
@@ -66,7 +67,7 @@ export default function MepagaIvan() {
           <div key={transaction._id}>
             <h1>{transaction.name}</h1>
             <h2>{transaction.value}</h2>
-            <button onClick={() => deleteTransaction(transaction._id)}>Iscruir</button>
+            <button onClick={() => deleteTransaction(transaction._id)}>Excluir</button> {/* Corrigindo o texto do botão */}
           </div>
         ))}
       </ul>
