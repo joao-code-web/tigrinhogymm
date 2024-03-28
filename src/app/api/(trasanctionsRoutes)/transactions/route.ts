@@ -6,13 +6,13 @@ const connectToDatabase = async () => {
   await connect();
 };
 
-// rota de pega tudo
+// rota de pegar tudo
 
-export const GET = async () => {
+export const GET = async (): Promise<void | NextResponse<unknown>> => {
   try {
     await connectToDatabase();
 
-    const transactions = await Transaction.find().select('_id name value'); // Certifique-se de selecionar o campo _id
+    const transactions = await Transaction.find().select('_id name value');
     return NextResponse.json(transactions);
   } catch (error) {
     console.error("Erro ao buscar transações:", error);
@@ -23,12 +23,12 @@ export const GET = async () => {
 
 // rota de postar mas não é foto e sim transações
 
-export const POST = async (req: NextRequest) => {
+export const POST = async (req: NextRequest): Promise<void | NextResponse<unknown>> => {
   try {
     const body = await req.json();
     const { name, value } = body;
-    if (!name && !value) {
-      return false;
+    if (!name || !value) {
+      return new NextResponse("Nome e valor são obrigatórios", { status: 400 });
     }
     await connectToDatabase();
 
@@ -45,7 +45,7 @@ export const POST = async (req: NextRequest) => {
 
 // rota de deletar transação
 
-export const DELETE = async (req: NextRequest) => {
+export const DELETE = async (req: NextRequest): Promise<void | NextResponse<unknown>> => {
   try {
     const { searchParams } = new URL(req.url);
     const transactionIdentifier = searchParams.get("transactionId");
@@ -72,7 +72,7 @@ export const DELETE = async (req: NextRequest) => {
 
 // rota de modificar transação
 
-export const PATCH = async (req: NextRequest) => {
+export const PATCH = async (req: NextRequest): Promise<void | NextResponse<unknown>> => {
   try {
     const { searchParams } = new URL(req.url);
     const transactionIdentifier = searchParams.get("transactionId");
