@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export default function useGetTransactions() {
+export default function GetTransactions() {
     const getTransactionsAll = async () => {
         try {
             const result = await axios.get("http://localhost:8000/api/transactions");

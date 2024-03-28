@@ -1,8 +1,8 @@
 "use client"
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import useGetTransactions from "@/components/Hooks/useGetTransactions";  // Corrija o caminho para o hook useGetTransactions
-import usePostTransactions from "@/components/Hooks/usePostTransactions"; // Corrija o caminho para o hook usePostTransactions
+import GetTransactions from "@/components/Hooks/GetTransactions";  // Corrija o caminho para o hook useGetTransactions
+import PostTransactions from "@/components/Hooks/PostTransactions"; // Corrija o caminho para o hook usePostTransactions
 
 interface Transaction {
   _id: string;
@@ -15,7 +15,7 @@ export default function MepagaIvan() {
   const [name, setName] = useState<string>("");
   const [value, setValue] = useState<string>("");
 
-  const { getTransactionsAll } = useGetTransactions(); // Movido para fora do useEffect
+  const { getTransactionsAll } = GetTransactions(); // Movido para fora do useEffect
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +36,7 @@ export default function MepagaIvan() {
       value: +value
     };
     try {
-      await usePostTransactions().postTransaction(newTransaction);
+      await PostTransactions().postTransaction(newTransaction);
       setName("");
       setValue("");
     } catch (error) {
@@ -67,7 +67,6 @@ export default function MepagaIvan() {
             <h1>{transaction.name}</h1>
             <h2>{transaction.value}</h2>
             <button onClick={() => deleteTransaction(transaction._id)}>Iscruir</button>
-        
           </div>
         ))}
       </ul>

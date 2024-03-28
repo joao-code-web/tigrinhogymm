@@ -5,7 +5,7 @@ interface Transaction {
     value: number;
 }
 
-export default function usePostTransactions() {
+export default function PostTransactions() {
 
     const postTransaction = async (newTransaction: Transaction): Promise<AxiosResponse<any>> => {
         try {
