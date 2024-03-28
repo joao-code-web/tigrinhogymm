@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import useGetTransactions from "@/components/Hooks/GetTransactions"; // Corrigindo o caminho do hook useGetTransactions
-import usePostTransactions from "@/components/Hooks/PostTransactions"; // Corrigindo o caminho do hook usePostTransactions
+import GetTransactions from "@/components/Hooks/GetTransactions"; // Corrigindo o caminho do hook useGetTransactions
+import PostTransactions from "@/components/Hooks/PostTransactions"; // Corrigindo o caminho do hook usePostTransactions
 
 interface Transaction {
   _id: string;
@@ -14,7 +14,7 @@ export default function MepagaIvan() {
   const [name, setName] = useState<string>("");
   const [value, setValue] = useState<string>("");
 
-  const { getTransactionsAll } = useGetTransactions(); // Usando o hook useGetTransactions
+  const { getTransactionsAll } = GetTransactions(); // Usando o hook useGetTransactions
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,7 +28,7 @@ export default function MepagaIvan() {
     fetchData();
   }, [getTransactionsAll]);
 
-  const { postTransaction } = usePostTransactions(); // Usando o hook usePostTransactions
+  const { postTransaction } = PostTransactions(); // Usando o hook usePostTransactions
 
   const addTransaction = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
