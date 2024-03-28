@@ -1,95 +1,76 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import useGetTransactions from "@/components/Hooks/useGetTransactions";  // Corrija o caminho para o hook useGetTransactions
+import usePostTransactions from "@/components/Hooks/usePostTransactions"; // Corrija o caminho para o hook usePostTransactions
 
-export default function Home() {
+interface Transaction {
+  _id: string;
+  name: string;
+  value: number;
+}
+
+export default function MepagaIvan() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [name, setName] = useState<string>("");
+  const [value, setValue] = useState<string>("");
+
+  const { getTransactionsAll } = useGetTransactions(); // Movido para fora do useEffect
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getTransactionsAll(); // Agora chamando a função diretamente
+        setTransactions(data);
+      } catch (error) {
+        console.error("Erro ao carregar transações:", error);
+      }
+    };
+    fetchData();
+  }, [getTransactionsAll]); // Adicionando getTransactionsAll como dependência
+
+  const addTransaction = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    const newTransaction = {
+      name,
+      value: +value
+    };
+    try {
+      await usePostTransactions().postTransaction(newTransaction);
+      setName("");
+      setValue("");
+    } catch (error) {
+      console.error("Erro ao adicionar transação:", error);
+    }
+  };
+
+  const deleteTransaction = async (id: string) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/transactions?transactionId=${id}`);
+      setTransactions(transactions.filter(transaction => transaction._id !== id));
+    } catch (error) {
+      console.error("Erro ao excluir transação:", error);
+    }
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <div>
+      <h1>Transações</h1>
+      <form>
+        <input type="text" name="name" placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} />
+        <input type="text" name="value" placeholder="Valor" value={value} onChange={(e) => setValue(e.target.value)} />
+        <button onClick={addTransaction}>Add</button>
+      </form>
+      <ul>
+        {transactions.map((transaction) => (
+          <div key={transaction._id}>
+            <h1>{transaction.name}</h1>
+            <h2>{transaction.value}</h2>
+            <button onClick={() => deleteTransaction(transaction._id)}>Iscruir</button>
+        
+          </div>
+        ))}
+      </ul>
+    </div>
   );
 }
