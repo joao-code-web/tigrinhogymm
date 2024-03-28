@@ -1,8 +1,8 @@
 "use client"
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import GetTransactions from "@/components/Hooks/GetTransactions"; // Corrigindo o caminho do hook useGetTransactions
-import PostTransactions from "@/components/Hooks/PostTransactions"; // Corrigindo o caminho do hook usePostTransactions
+import useGetTransactions from "@/components/Hooks/GetTransactions";
+import usePostTransactions from "@/components/Hooks/PostTransactions";
 
 interface Transaction {
   _id: string;
@@ -10,12 +10,12 @@ interface Transaction {
   value: number;
 }
 
-export default function MepagaIvan() {
+const MepagaIvan = () => { // Corrigindo para começar com letra maiúscula
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [name, setName] = useState<string>("");
   const [value, setValue] = useState<string>("");
 
-  const { getTransactionsAll } = GetTransactions(); // Usando o hook useGetTransactions
+  const { getTransactionsAll } = useGetTransactions();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +29,7 @@ export default function MepagaIvan() {
     fetchData();
   }, [getTransactionsAll]);
 
-  const { postTransaction } = PostTransactions(); // Usando o hook usePostTransactions
+  const { postTransaction } = usePostTransactions();
 
   const addTransaction = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
@@ -38,7 +38,7 @@ export default function MepagaIvan() {
       value: +value
     };
     try {
-      await postTransaction(newTransaction); // Chamando a função postTransaction diretamente
+      await postTransaction(newTransaction);
       setName("");
       setValue("");
     } catch (error) {
@@ -68,10 +68,12 @@ export default function MepagaIvan() {
           <div key={transaction._id}>
             <h1>{transaction.name}</h1>
             <h2>{transaction.value}</h2>
-            <button onClick={() => deleteTransaction(transaction._id)}>Excluir</button> {/* Corrigindo o texto do botão */}
+            <button onClick={() => deleteTransaction(transaction._id)}>Excluir</button>
           </div>
         ))}
       </ul>
     </div>
   );
-}
+};
+
+export default MepagaIvan; // Garantindo a exportação correta do componente
