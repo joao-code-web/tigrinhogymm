@@ -12,7 +12,7 @@ export const GET = async (): Promise<void | NextResponse<unknown>> => {
   try {
     await connectToDatabase();
 
-    const transactions = await Transaction.find().select('_id name value');
+    const transactions = await Transaction.find().select('_id name value dataTransaction');
     return NextResponse.json(transactions);
   } catch (error) {
     console.error("Erro ao buscar transações:", error);
@@ -26,8 +26,8 @@ export const GET = async (): Promise<void | NextResponse<unknown>> => {
 export const POST = async (req: NextRequest): Promise<void | NextResponse<unknown>> => {
   try {
     const body = await req.json();
-    const { name, value } = body;
-    if (!name || !value) {
+    const { name, value, dataTransaction } = body;
+    if (!name || !value || !dataTransaction) {
       return new NextResponse("Nome e valor são obrigatórios", { status: 400 });
     }
     await connectToDatabase();
@@ -72,32 +72,32 @@ export const DELETE = async (req: NextRequest): Promise<void | NextResponse<unkn
 
 // rota de modificar transação
 
-export const PATCH = async (req: NextRequest): Promise<void | NextResponse<unknown>> => {
-  try {
-    const { searchParams } = new URL(req.url);
-    const transactionIdentifier = searchParams.get("transactionId");
+// export const PATCH = async (req: NextRequest): Promise<void | NextResponse<unknown>> => {
+//   try {
+//     const { searchParams } = new URL(req.url);
+//     const transactionIdentifier = searchParams.get("transactionId");
 
-    if (!transactionIdentifier) {
-      return new NextResponse("O parâmetro transactionId é obrigatório", { status: 400 });
-    }
+//     if (!transactionIdentifier) {
+//       return new NextResponse("O parâmetro transactionId é obrigatório", { status: 400 });
+//     }
 
-    const body = await req.json();
+//     const body = await req.json();
 
-    await connectToDatabase();
+//     await connectToDatabase();
 
-    const updatedTransaction = await Transaction.findOneAndUpdate(
-      { _id: transactionIdentifier },
-      body,
-      { new: true }
-    );
+//     const updatedTransaction = await Transaction.findOneAndUpdate(
+//       { _id: transactionIdentifier },
+//       body,
+//       { new: true }
+//     );
 
-    if (!updatedTransaction) {
-      return new NextResponse("Transação não encontrada", { status: 404 });
-    }
+//     if (!updatedTransaction) {
+//       return new NextResponse("Transação não encontrada", { status: 404 });
+//     }
 
-    return new NextResponse(JSON.stringify({ message: "Transação atualizada com sucesso", transaction: updatedTransaction }), { status: 200 });
-  } catch (error) {
-    console.error("Erro ao atualizar transação:", error);
-    return new NextResponse("Erro ao atualizar transação", { status: 500 });
-  }
-};
+//     return new NextResponse(JSON.stringify({ message: "Transação atualizada com sucesso", transaction: updatedTransaction }), { status: 200 });
+//   } catch (error) {
+//     console.error("Erro ao atualizar transação:", error);
+//     return new NextResponse("Erro ao atualizar transação", { status: 500 });
+//   }
+// };
